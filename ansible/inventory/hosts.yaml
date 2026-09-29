@@ -1,6 +1,7 @@
 # Voorbeeld-inventory - kopieer naar hosts.yaml en vul de echte node-namen/IP's
 # in voor DC1 en DC2. Niet gevuld met aannames, want die namen kennen wij hier niet.
 all:
+  hosts:
     # DC1: de drie 8 GB-Pi's (nieuw op te bouwen)
     dc1-kube01:
       ansible_host: 10.1.0.11
