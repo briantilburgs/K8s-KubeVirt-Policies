@@ -7,7 +7,7 @@
 # Puur read-only - geen enkele mutatie.
 set -euo pipefail
 
-GSLB_NS="${GSLB_NS:-gslb-app}"
+GSLB_NS="gslb-app"
 
 echo "=== Timestamp ==="
 date -u
