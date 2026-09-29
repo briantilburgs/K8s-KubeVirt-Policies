@@ -1,0 +1,27 @@
+---
+# PLACEHOLDER - NOG NIET COMPLEET.
+#
+# Bekend, en dus hier al vast te leggen:
+#   - de fysieke switchpoort(en) van elke node moeten als 802.1q trunk
+#     geconfigureerd zijn en VLAN's 64-71 doorlaten (fgt01: zie
+#     10.1.64.0/24 t/m 10.1.71.0/24) - dit gebeurt op de switch, niet op de
+#     node zelf, en valt dus buiten wat Ansible hier kan doen.
+#
+# Nog NIET bekend (zie eerdere discussie over de Local Access VLAN-feature
+# van Isovalent Private Networks):
+#   - of de node zelf een OS-niveau VLAN-subinterface nodig heeft
+#     (bv. via nmstate/NetworkManager), of dat Isovalent de 802.1q-tagging
+#     zelf in de eBPF-datapath afhandelt zonder host-voorbereiding.
+#
+# Vul deze playbook pas verder in zodra dat bevestigd is (via Isovalent/Cisco
+# partnerdocs of jullie contactpersoon) - anders preparen we mogelijk het
+# verkeerde, of onnodig.
+- name: "TODO: VLAN-trunk voorbereiding op nodes (wacht op Isovalent-bevestiging)"
+  hosts: dc1_kubevirt_nodes:dc2_kubevirt_nodes
+  gather_facts: false
+  tasks:
+    - name: Placeholder - nog geen taken gedefinieerd
+      ansible.builtin.debug:
+        msg: >-
+          Deze playbook is bewust leeg. Zie de comments bovenaan dit bestand
+          voor wat nog uitgezocht moet worden voordat dit ingevuld kan worden.

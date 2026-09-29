@@ -1,0 +1,21 @@
+# Flows-tab row covered: nsx-app1-appl->nsx-app1-db
+# db is a leaf in this template: egress is explicitly closed (no outbound
+# flow defined for it), which is what actually proves default-deny works.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: nsx-app1-db
+  namespace: nsx-app1
+spec:
+  endpointSelector:
+    matchLabels:
+      app: nsx-app1-db
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app: nsx-app1-appl
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egress: []

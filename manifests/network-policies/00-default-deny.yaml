@@ -1,0 +1,15 @@
+# Zero-trust baseline voor de hele nsx-app1 namespace, zoals NSX's "deny
+# by default, allow explicit" model. Deze policy raakt de drie bestaande
+# VM's niet (hun eigen policies blijven gelden, Cilium telt policies per
+# endpoint bij elkaar op) - hij vangt alleen workloads op die later aan
+# deze namespace worden toegevoegd zonder eigen CiliumNetworkPolicy, zodat
+# die niet per ongeluk in Cilium's "geen policy = alles toegestaan" staan.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: nsx-app1-default-deny
+  namespace: nsx-app1
+spec:
+  endpointSelector: {}
+  ingress: []
+  egress: []

@@ -1,0 +1,26 @@
+# Replaces the NSX DFW rules for the "frontend" security group.
+# Flows-tab rows covered: (empty)->nsx-app1-frontend, nsx-app1-frontend->nsx-app1-appl
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: nsx-app1-frontend
+  namespace: nsx-app1
+spec:
+  endpointSelector:
+    matchLabels:
+      app: nsx-app1-frontend
+  ingress:
+    - fromEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app: nsx-app1-appl
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

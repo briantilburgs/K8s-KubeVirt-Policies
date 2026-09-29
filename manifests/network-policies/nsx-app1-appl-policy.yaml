@@ -1,0 +1,26 @@
+# Flows-tab row covered: nsx-app1-frontend->nsx-app1-appl, nsx-app1-appl->nsx-app1-db
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: nsx-app1-appl
+  namespace: nsx-app1
+spec:
+  endpointSelector:
+    matchLabels:
+      app: nsx-app1-appl
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app: nsx-app1-frontend
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app: nsx-app1-db
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

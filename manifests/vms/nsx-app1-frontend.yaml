@@ -1,0 +1,52 @@
+# Minimal-image PoC VM (Cirros) - single pod-network interface.
+# Labels here are the identity Cilium uses for policy matching, and map 1:1
+# onto the "workload" column in VM-flow-template.xlsx.
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: nsx-app1-frontend
+  namespace: nsx-app1
+  labels:
+    app: nsx-app1-frontend
+    tier: frontend
+    app.kubernetes.io/part-of: nsx-app1
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        app: nsx-app1-frontend
+        tier: frontend
+        app.kubernetes.io/part-of: nsx-app1
+    spec:
+      terminationGracePeriodSeconds: 0
+      domain:
+        resources:
+          requests:
+            memory: 64Mi
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            # Pin an explicit tag before this goes anywhere near production.
+            image: quay.io/kubevirt/cirros-container-disk-demo
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #!/bin/sh
+              # Listener for the world->frontend flow (TCP/8080), just the
+              # bare handshake - no app layer needed for this PoC.
+              while true; do nc -l -p 8080; done &

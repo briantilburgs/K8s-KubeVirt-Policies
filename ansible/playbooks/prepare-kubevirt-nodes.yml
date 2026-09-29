@@ -1,0 +1,39 @@
+---
+# Read-only check of nodes hardware-virtualisatie (KVM) ondersteunen, wat
+# KubeVirt nodig heeft voor performante VM's. Deze playbook WIJZIGT niets -
+# hij rapporteert alleen pass/fail per node. Het inschakelen van KVM zelf
+# (BIOS/hypervisor nested-virtualization) is hardware-/platformafhankelijk
+# en bewust hier niet geautomatiseerd - dat vraagt een expliciete, aparte
+# beslissing per omgeving.
+- name: Controleer KVM-ondersteuning op KubeVirt-nodes
+  hosts: dc1_kubevirt_nodes:dc2_kubevirt_nodes
+  gather_facts: false
+  tasks:
+    - name: Check of /dev/kvm bestaat
+      ansible.builtin.stat:
+        path: /dev/kvm
+      register: kvm_device
+
+    - name: Check virt-host-validate (indien beschikbaar)
+      ansible.builtin.command: virt-host-validate qemu
+      register: virt_host_validate
+      changed_when: false
+      failed_when: false
+
+    - name: Resultaat per node
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }}:
+          /dev/kvm {{ 'aanwezig' if kvm_device.stat.exists else 'ONTBREEKT' }};
+          virt-host-validate rc={{ virt_host_validate.rc | default('n/a') }}
+
+    - name: Waarschuw als KVM ontbreekt
+      ansible.builtin.fail:
+        msg: >-
+          {{ inventory_hostname }} heeft geen /dev/kvm. KubeVirt kan wel
+          installeren, maar VM's draaien dan in software-emulatie
+          (useEmulation: true) - niet geschikt voor iets production-adjacent.
+          Regel hardware-virtualisatie op deze node voordat je verder gaat.
+      when: not kvm_device.stat.exists
+      # Bewust geen "ignore_errors" - dit moet zichtbaar falen i.p.v. stil
+      # doorgaan, zodat het geen verrassing is bij de KubeVirt-installatie.

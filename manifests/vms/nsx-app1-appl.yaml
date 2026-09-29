@@ -1,0 +1,47 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: nsx-app1-appl
+  namespace: nsx-app1
+  labels:
+    app: nsx-app1-appl
+    tier: app
+    app.kubernetes.io/part-of: nsx-app1
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        app: nsx-app1-appl
+        tier: app
+        app.kubernetes.io/part-of: nsx-app1
+    spec:
+      terminationGracePeriodSeconds: 0
+      domain:
+        resources:
+          requests:
+            memory: 64Mi
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: quay.io/kubevirt/cirros-container-disk-demo
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #!/bin/sh
+              # Listener for the frontend->appl flow (TCP/8080).
+              while true; do nc -l -p 8080; done &

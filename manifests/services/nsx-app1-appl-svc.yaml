@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsx-app1-appl
+  namespace: nsx-app1
+  labels:
+    app: nsx-app1-appl
+    app.kubernetes.io/part-of: nsx-app1
+spec:
+  selector:
+    app: nsx-app1-appl
+  ports:
+    - name: app
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
