@@ -8,14 +8,22 @@ echo "=== Isovalent/Cilium CRD's ==="
 kubectl get crd 2>&1 | grep -E 'cilium\.io|isovalent\.com' || echo "Geen Cilium/Isovalent CRD's gevonden - is Cilium uberhaupt geinstalleerd?"
 
 echo
-echo "=== Specifiek: INV/IPN CRD's (namen zoals bevestigd in Isovalent-documentatie) ==="
-for crd in clusterwideprivatenetworks.isovalent.com isovalentnetworkpolicies.isovalent.com; do
+echo "=== Specifiek: INV/IPN CRD's ==="
+echo "(let op: de CRD-naam voor 'Private Networks' varieert per Cilium"
+echo " Enterprise-versie - op v1.18.11-cee.1 heet dit isovalentpodnetworks,"
+echo " nieuwere/andere docs noemen clusterwideprivatenetworks. Check beide.)"
+for crd in clusterwideprivatenetworks.isovalent.com isovalentpodnetworks.isovalent.com isovalentnetworkpolicies.isovalent.com; do
   if kubectl get crd "$crd" >/dev/null 2>&1; then
     echo "OK    $crd"
   else
-    echo "MIST  $crd  <- INV is (nog) niet geinstalleerd/beschikbaar op dit cluster"
+    echo "MIST  $crd"
   fi
 done
+echo
+echo "Als isovalentpodnetworks OK is maar clusterwideprivatenetworks MIST:"
+echo "  kubectl explain isovalentpodnetwork --recursive"
+echo "  kubectl explain isovalentpodnetwork.spec"
+echo "om te zien of dit dezelfde feature is (en of er al een VLAN-veld in zit)."
 
 echo
 echo "=== Cilium agent image (check op Isovalent Enterprise build) ==="

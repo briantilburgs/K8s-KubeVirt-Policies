@@ -34,7 +34,9 @@ breken.** Alles moet blijven werken zoals het nu werkt. Concreet betekent dat:
 VM-flow-template.xlsx        Aanvraagformaat: Workloads- en Flows-tabblad
 manifests/
   00-namespace.yaml           nsx-app1 namespace (PoC-workloads)
-  kubevirt/                   KubeVirt-operator installatie (gepind op v1.9.0)
+  kubevirt/
+    operator/                  Stap 1: KubeVirt-operator + CRD (gepind op v1.9.0)
+    cr/                        Stap 2: de KubeVirt custom resource zelf
   vms/                        VirtualMachine-manifesten (Cirros, 1 interface, pod-netwerk)
   services/                   Stabiele DNS-namen per VM, voor testdoeleinden
   network-policies/           CiliumNetworkPolicy per workload + namespace-brede default-deny
@@ -54,10 +56,16 @@ ansible/
    op elk cluster (DC1, DC2) met een kubectl-context die daarnaartoe wijst.
 2. **Node-check**: `ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/prepare-kubevirt-nodes.yml`
    - faalt zichtbaar als een node geen `/dev/kvm` heeft; los dat eerst op.
-3. **KubeVirt installeren**:
+3. **KubeVirt installeren** (bewust in twee stappen - de CRD moet
+   "established" zijn voordat de KubeVirt-CR aangemaakt kan worden, anders
+   faalt dit met "no matches for kind KubeVirt"):
    ```
-   kubectl apply -k manifests/kubevirt/
-   kubectl -n kubevirt wait kv kubevirt --for condition=Available --timeout=5m
+   kubectl apply -k manifests/kubevirt/operator/
+   kubectl wait --for=condition=Established crd/kubevirts.kubevirt.io --timeout=2m
+   kubectl -n kubevirt rollout status deployment/virt-operator --timeout=3m
+
+   kubectl apply -k manifests/kubevirt/cr/
+   kubectl -n kubevirt wait kv kubevirt --for condition=Available --timeout=10m
    ```
 4. **INV-check** (informatief, voor de latere VLAN-fase):
    `./scripts/check-inv-availability.sh`

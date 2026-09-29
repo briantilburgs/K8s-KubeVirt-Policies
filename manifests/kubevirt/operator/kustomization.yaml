@@ -1,0 +1,8 @@
+# Stap 1 van 2. Installeert de KubeVirt-operator + de kubevirts.kubevirt.io CRD.
+# NIET in dezelfde apply-aanroep als de CR hieronder combineren - de CRD moet
+# eerst "established" zijn voordat de API-server discovery van "kind: KubeVirt"
+# klopt, anders faalt de CR-apply met "no matches for kind KubeVirt".
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - https://github.com/kubevirt/kubevirt/releases/download/v1.9.0/kubevirt-operator.yaml
